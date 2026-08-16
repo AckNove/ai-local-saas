@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-08-13T02:04:42",
+  "base_url": "http://127.0.0.1:8000",
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
+  "cases": [
+    {
+      "case": "登录",
+      "status": "PASS",
+      "detail": "已使用 admin 登录并跳转 /dashboard",
+      "screenshot": "screenshots\\01_login_dashboard.png",
+      "timestamp": "2026-08-13T02:04:37"
+    },
+    {
+      "case": "数据概览渲染",
+      "status": "PASS",
+      "detail": "侧边栏与主体已渲染，登录按钮已消失",
+      "screenshot": "screenshots\\02_dashboard.png",
+      "timestamp": "2026-08-13T02:04:37"
+    },
+    {
+      "case": "创建商家",
+      "status": "PASS",
+      "detail": "已创建商家「E2E商家_1786557875」并出现在列表",
+      "screenshot": "screenshots\\03_merchant_created.png",
+      "timestamp": "2026-08-13T02:04:38"
+    },
+    {
+      "case": "创建种草卡",
+      "status": "PASS",
+      "detail": "已创建种草卡「E2E种草卡_1786557875」并跳转详情页",
+      "screenshot": "screenshots\\04_seedcard_created.png",
+      "timestamp": "2026-08-13T02:04:38"
+    },
+    {
+      "case": "生成二维码",
+      "status": "PASS",
+      "detail": "种草卡二维码已成功渲染（PNG）",
+      "screenshot": "screenshots\\05_qrcode.png",
+      "timestamp": "2026-08-13T02:04:38"
+    },
+    {
+      "case": "AI 评论生成",
+      "status": "PASS",
+      "detail": "AI 已返回评论结果并渲染结果卡片",
+      "screenshot": "screenshots\\06_ai_comment.png",
+      "timestamp": "2026-08-13T02:04:42"
+    },
+    {
+      "case": "页面渲染::AI 诊断报告",
+      "status": "PASS",
+      "detail": "AI 诊断报告 页面已渲染",
+      "screenshot": "screenshots\\07_page_ai_report.png",
+      "timestamp": "2026-08-13T02:04:42"
+    },
+    {
+      "case": "页面渲染::AI 内容生成",
+      "status": "PASS",
+      "detail": "AI 内容生成 页面已渲染",
+      "screenshot": "screenshots\\07_page_ai_content.png",
+      "timestamp": "2026-08-13T02:04:42"
+    },
+    {
+      "case": "页面渲染::商家管理",
+      "status": "PASS",
+      "detail": "商家管理 页面已渲染",
+      "screenshot": "screenshots\\07_page_merchants.png",
+      "timestamp": "2026-08-13T02:04:42"
+    },
+    {
+      "case": "页面渲染::种草卡管理",
+      "status": "PASS",
+      "detail": "种草卡管理 页面已渲染",
+      "screenshot": "screenshots\\07_page_seed-cards.png",
+      "timestamp": "2026-08-13T02:04:42"
+    }
+  ]
+}

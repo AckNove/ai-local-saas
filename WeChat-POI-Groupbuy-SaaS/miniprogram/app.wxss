@@ -1,0 +1,18 @@
+page {
+  background: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, sans-serif;
+}
+.btn {
+  background: #07c160;
+  color: #fff;
+  border-radius: 48rpx;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 30rpx;
+}
+.btn-ghost {
+  background: #fff;
+  color: #07c160;
+  border: 1rpx solid #07c160;
+}
+.muted { color: #999; font-size: 24rpx; }

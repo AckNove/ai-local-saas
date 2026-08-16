@@ -1,0 +1,17 @@
+<view wx:if="{{pkg}}" class="detail">
+  <view class="hero">{{pkg.name}}</view>
+  <view class="price">
+    <text class="now">¥{{group_price_yuan}}</text>
+    <text class="old">¥{{original_price_yuan}}</text>
+  </view>
+  <view class="desc">{{pkg.description}}</view>
+  <view class="row">库存：{{pkg.stock}}　已售：{{pkg.sold_count}}</view>
+  <view class="row">有效期：{{validText}}</view>
+  <view class="row">适用门店数：{{pkg.store_ids.length}}</view>
+
+  <view class="actions">
+    <button class="btn" data-type="dine_in" bindtap="buy">立即购买（到店核销）</button>
+    <button class="btn btn-ghost" data-type="self_pickup" bindtap="buy">到店自提</button>
+    <button class="btn btn-ghost" data-type="reservation" bindtap="buy">预约订座</button>
+  </view>
+</view>

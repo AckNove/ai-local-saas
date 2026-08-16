@@ -1,0 +1,5 @@
+.order { background:#fff; margin:16rpx; border-radius:16rpx; padding:24rpx; }
+.top { display:flex; justify-content:space-between; font-size:28rpx; }
+.status { color:#07c160; }
+.amount { color:#ff5000; font-size:32rpx; font-weight:700; margin:8rpx 0; }
+.center { text-align:center; padding:40rpx; }

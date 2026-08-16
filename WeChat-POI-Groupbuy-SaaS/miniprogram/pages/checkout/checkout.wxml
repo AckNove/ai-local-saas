@@ -1,0 +1,12 @@
+<view wx:if="{{pkg}}" class="checkout">
+  <view class="card">
+    <view class="name">{{pkg.name}}</view>
+    <view class="price">¥{{total_yuan}}</view>
+    <view class="muted">履约方式：{{type === 'self_pickup' ? '到店自提' : '到店核销'}}</view>
+    <view class="muted">适用门店 ID：{{storeId}}</view>
+  </view>
+  <view class="card">
+    <input class="phone" placeholder="请输入手机号" value="{{phone}}" bindinput="onPhone" />
+  </view>
+  <button class="btn" bindtap="submit" disabled="{{submitting}}">微信支付 ¥{{total_yuan}}</button>
+</view>

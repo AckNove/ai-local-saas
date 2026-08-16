@@ -1,0 +1,11 @@
+# Docker 构建忽略文件
+web-admin/node_modules
+web-admin/dist
+backend/__pycache__
+backend/*.pyc
+**/__pycache__
+**/*.pyc
+.git
+.env
+*.db
+.DS_Store

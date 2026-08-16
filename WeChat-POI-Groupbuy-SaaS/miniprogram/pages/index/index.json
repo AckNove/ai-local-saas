@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "package-card": "/components/package-card/package-card"
+  },
+  "navigationBarTitleText": "附近团购"
+}

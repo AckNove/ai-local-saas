@@ -1,0 +1,10 @@
+....................                                                     [100%]
+============================== warnings summary ===============================
+tests/test_auth.py::test_wx_login_returns_consumer_token
+  <sys>:0: SAWarning: SELECT statement has a cartesian product between FROM element(s) "orders" and FROM element "anon_1".  Apply join condition(s) between each element to resolve.
+
+tests/test_tenant_isolation.py::test_merchant_sees_own_store
+  <sys>:0: SAWarning: SELECT statement has a cartesian product between FROM element(s) "store" and FROM element "anon_1".  Apply join condition(s) between each element to resolve.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+20 passed, 2 warnings in 159.36s (0:02:39)

@@ -1,0 +1,5 @@
+.checkout { padding: 24rpx; }
+.card { background: #fff; border-radius: 16rpx; padding: 28rpx; margin-bottom: 20rpx; }
+.name { font-size: 32rpx; font-weight: 600; }
+.price { color: #ff5000; font-size: 40rpx; font-weight: 700; margin: 10rpx 0; }
+.phone { font-size: 30rpx; }

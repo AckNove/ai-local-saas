@@ -1,0 +1,59 @@
+# 生产部署 Compose：app + PostgreSQL + Redis（Redis 预留，当前 MVP 未启用缓存）
+# 用法（在仓库根目录）：
+#   docker compose -f docker/docker-compose.yml up --build
+#
+# 说明：
+# - app 通过 DATABASE_URL 指向本栈内的 db 服务（postgresql+asyncpg）。
+# - 启动时会执行 `alembic upgrade head` 迁移（失败不阻断，create_all 兜底）。
+# - gunicorn + UvicornWorker 托管 FastAPI。
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-saas}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-CHANGE_ME_STRONG}
+      - POSTGRES_DB=${POSTGRES_DB:-growth}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-saas} -d ${POSTGRES_DB:-growth}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # 当前 MVP 未使用 Redis；保留以便后续做缓存/限流。
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-saas}:${POSTGRES_PASSWORD:-CHANGE_ME_STRONG}@db:5432/${POSTGRES_DB:-growth}
+      - LLM_PROVIDER=${LLM_PROVIDER:-mock}
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - LLM_BASE_URL=${LLM_BASE_URL:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - JWT_SECRET=${JWT_SECRET:-please-change-this-to-a-random-32plus-char-secret}
+      - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173}
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-http://127.0.0.1:8000}
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+    volumes:
+      # 仅持久化本地产物目录，切勿挂载到 /app/backend（会遮蔽镜像内代码）
+      - app-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  pg-data:
+  app-data:

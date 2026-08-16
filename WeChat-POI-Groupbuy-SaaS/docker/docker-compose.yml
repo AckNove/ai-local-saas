@@ -1,0 +1,52 @@
+# 微信视频号 POI 团购 SaaS — 生产部署 Compose
+# 用法（在项目根目录）：
+#   docker compose -f docker/docker-compose.yml up --build -d
+#
+# app 通过 DATABASE_URL 指向栈内 PostgreSQL；单服务同时托管 API + web-admin 前端。
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-wechat}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-CHANGE_ME_STRONG}
+      - POSTGRES_DB=${POSTGRES_DB:-groupbuy}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wechat} -d ${POSTGRES_DB:-groupbuy}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-wechat}:${POSTGRES_PASSWORD:-CHANGE_ME_STRONG}@db:5432/${POSTGRES_DB:-groupbuy}
+      - JWT_SECRET=${JWT_SECRET:-please-change-this-to-a-random-32plus-char-secret}
+      - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
+      - CORS_ORIGINS=["*"]
+      - SERVER_PORT=8000
+      - WEB_ADMIN_DIST=/app/web-admin/dist
+      - WECHAT_PAY_PROVIDER=${WECHAT_PAY_PROVIDER:-mock}
+      - MAP_POI_PROVIDER=${MAP_POI_PROVIDER:-mock}
+      - WECHAT_NOTIFY_PROVIDER=${WECHAT_NOTIFY_PROVIDER:-mock}
+      - WECHAT_APPID=${WECHAT_APPID:-}
+      - WECHAT_SECRET=${WECHAT_SECRET:-}
+      - WXPAY_MCH_ID=${WXPAY_MCH_ID:-}
+      - WXPAY_API_KEY=${WXPAY_API_KEY:-}
+      - WXPAY_CERT_PATH=${WXPAY_CERT_PATH:-}
+      - MAP_KEY=${MAP_KEY:-}
+      - COMMISSION_RATE=${COMMISSION_RATE:-0.0}
+    restart: unless-stopped
+
+volumes:
+  pg-data:

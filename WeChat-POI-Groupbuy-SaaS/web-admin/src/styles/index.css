@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei',
+    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #1f2329;
+}
+
+body {
+  margin: 0;
+  background: #f5f6f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* 通用卡片 */
+.card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-100 p-4;
+}
+
+/* 主按钮 */
+.btn {
+  @apply inline-flex items-center justify-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors;
+}
+.btn-primary {
+  @apply btn bg-brand text-white hover:bg-brand-dark disabled:opacity-50;
+}
+.btn-ghost {
+  @apply btn bg-gray-100 text-gray-700 hover:bg-gray-200;
+}
+.btn-danger {
+  @apply btn bg-red-50 text-red-600 hover:bg-red-100;
+}
+
+/* 表单控件 */
+.input {
+  @apply w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-brand;
+}
+.label {
+  @apply block text-sm text-gray-600 mb-1;
+}
+
+/* 表格 */
+.table {
+  @apply w-full text-sm border-collapse;
+}
+.table th {
+  @apply text-left text-gray-500 font-medium bg-gray-50 px-3 py-2 border-b;
+}
+.table td {
+  @apply px-3 py-2 border-b border-gray-100;
+}

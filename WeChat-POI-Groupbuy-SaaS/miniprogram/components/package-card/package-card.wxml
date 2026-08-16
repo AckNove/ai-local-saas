@@ -1,0 +1,12 @@
+<view class="card" bindtap="onTap">
+  <view class="thumb">{{pkg.name[0] || '餐'}}</view>
+  <view class="info">
+    <view class="name">{{pkg.name}}</view>
+    <view class="price">
+      <text class="now">¥{{group_price_yuan}}</text>
+      <text class="old">¥{{original_price_yuan}}</text>
+    </view>
+    <view class="sold">已售 {{pkg.sold_count}} / 库存 {{pkg.stock}}</view>
+  </view>
+  <view class="buy">抢</view>
+</view>

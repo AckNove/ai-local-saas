@@ -1,0 +1,22 @@
+<view wx:if="{{needLogin}}" class="login">
+  <input class="f" placeholder="核销员账号" data-k="username" bindinput="onInput" />
+  <input class="f" placeholder="密码" password data-k="password" bindinput="onInput" />
+  <button class="btn" bindtap="doLogin">登录核销台</button>
+</view>
+
+<view wx:else class="verify">
+  <button class="btn" bindtap="scan">扫码核销</button>
+  <view class="manual">
+    <input class="f" placeholder="或手动输入核销码" data-k="code" bindinput="onInput" />
+    <button class="btn btn-ghost" bindtap="verify">核销</button>
+  </view>
+
+  <view wx:if="{{result}}" class="result {{result.ok ? 'ok' : 'fail'}}">
+    {{result.ok ? '✅ ' + result.msg : '⚠️ ' + result.msg}}
+  </view>
+
+  <view class="today">
+    <view class="title">今日核销（{{today.length}}）</view>
+    <view wx:for="{{today}}" wx:key="code" class="row">{{item.code}}　{{item.at}}</view>
+  </view>
+</view>

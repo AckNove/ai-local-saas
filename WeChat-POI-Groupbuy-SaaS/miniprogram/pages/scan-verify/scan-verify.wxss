@@ -1,0 +1,10 @@
+.login, .verify { padding: 30rpx; }
+.f { background:#fff; border-radius:12rpx; padding:20rpx; margin-bottom:16rpx; font-size:30rpx; }
+.manual { display:flex; align-items:center; gap:12rpx; margin:16rpx 0; }
+.manual .f { flex:1; }
+.result { padding:20rpx; border-radius:12rpx; margin:16rpx 0; text-align:center; }
+.result.ok { background:#e8f8ee; color:#07c160; }
+.result.fail { background:#fdeaea; color:#e54d42; }
+.today { margin-top: 20rpx; }
+.title { font-size:26rpx; color:#666; margin-bottom:8rpx; }
+.row { background:#fff; border-radius:12rpx; padding:16rpx; margin-bottom:10rpx; font-size:28rpx; }

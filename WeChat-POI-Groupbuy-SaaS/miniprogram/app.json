@@ -1,0 +1,19 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/package-detail/package-detail",
+    "pages/checkout/checkout",
+    "pages/order-list/order-list",
+    "pages/order-detail/order-detail",
+    "pages/scan-verify/scan-verify",
+    "pages/reservation/reservation"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#07c160",
+    "navigationBarTitleText": "视频号团购",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

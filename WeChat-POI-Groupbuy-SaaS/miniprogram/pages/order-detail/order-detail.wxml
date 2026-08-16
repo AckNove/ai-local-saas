@@ -1,0 +1,19 @@
+<view wx:if="{{order}}" class="detail">
+  <view class="status">状态：{{order.status}}</view>
+  <view class="amount">¥{{total_yuan}}　x{{order.quantity}}</view>
+
+  <view wx:if="{{order.fulfillment_type === 'self_pickup'}}" class="pickup">
+    自提状态：{{pickupText}}
+  </view>
+
+  <view class="codes" wx:if="{{codes.length}}">
+    <view class="title">核销码（到店出示）</view>
+    <view wx:for="{{codes}}" wx:key="id" class="code">{{item.code}}　{{item.status}}</view>
+  </view>
+
+  <view class="meta">
+    <view>履约方式：{{order.fulfillment_type}}</view>
+    <view>来源：{{order.source}}</view>
+    <view>下单时间：{{order.created_at}}</view>
+  </view>
+</view>

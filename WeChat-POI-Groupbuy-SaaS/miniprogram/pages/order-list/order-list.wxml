@@ -1,0 +1,9 @@
+<view wx:if="{{orders.length === 0}}" class="muted center">暂无订单</view>
+<view wx:for="{{orders}}" wx:key="id" class="order" data-no="{{item.order_no}}" bindtap="goDetail">
+  <view class="top">
+    <text>订单 {{item.order_no}}</text>
+    <text class="status">{{item.status}}</text>
+  </view>
+  <view class="amount">¥{{item.total_yuan}}　x{{item.quantity}}</view>
+  <view class="muted">{{item.created}}　履约：{{item.fulfillment_type}}</view>
+</view>

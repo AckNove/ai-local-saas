@@ -1,0 +1,16 @@
+<view class="banner" wx:if="{{merchant}}">
+  <view class="brand">{{merchant.name}}</view>
+  <view class="slogan">视频号推荐 · 到店团购更划算</view>
+</view>
+<view class="banner" wx:else>视频号推荐 · 到店团购更划算</view>
+
+<view wx:if="{{loading}}" class="muted center">加载中...</view>
+<view wx:else>
+  <package-card
+    wx:for="{{packages}}"
+    wx:key="id"
+    pkg="{{item}}"
+    bind:select="goDetail"
+  />
+  <view wx:if="{{packages.length === 0}}" class="muted center">暂无团购套餐</view>
+</view>

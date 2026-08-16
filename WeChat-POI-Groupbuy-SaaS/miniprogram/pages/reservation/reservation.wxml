@@ -1,0 +1,18 @@
+<view class="res">
+  <view class="row">门店 ID：{{storeId}}</view>
+  <view class="row">
+    <text>日期：</text>
+    <input class="f" value="{{date}}" data-k="date" bindinput="onField" />
+  </view>
+  <view class="row">
+    <text>时段：</text>
+    <picker mode="selector" range="{{slots}}" value="{{slots.indexOf(slot)}}" bindchange="onSlot">
+      <view class="f">{{slot}}</view>
+    </picker>
+  </view>
+  <view class="row">
+    <text>人数：</text>
+    <input class="f" type="number" value="{{party}}" data-k="party" bindinput="onField" />
+  </view>
+  <button class="btn" bindtap="submit">提交预约</button>
+</view>

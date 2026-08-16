@@ -1,0 +1,187 @@
+classDiagram
+    class PlatformOperator {
+        +int id
+        +string username
+        +string password_hash
+        +datetime created_at
+        +datetime deleted_at
+    }
+    class Merchant {
+        +int id
+        +string name
+        +string logo_url
+        +string contact_phone
+        +enum status
+        +datetime created_at
+        +datetime deleted_at
+    }
+    class MerchantUser {
+        +int id
+        +int merchant_id
+        +string username
+        +string password_hash
+        +datetime created_at
+        +datetime deleted_at
+    }
+    class Store {
+        +int id
+        +int merchant_id
+        +string name
+        +string address
+        +string phone
+        +string business_hours
+        +string poi_id
+        +string poi_name
+        +float lng
+        +float lat
+        +datetime created_at
+        +datetime deleted_at
+    }
+    class Staff {
+        +int id
+        +int merchant_id
+        +int store_id
+        +int user_id
+        +string name
+        +string phone
+        +enum role
+        +string openid
+        +datetime created_at
+        +datetime deleted_at
+    }
+    class Consumer {
+        +int id
+        +string openid
+        +string unionid
+        +string nickname
+        +string phone
+        +datetime created_at
+        +datetime deleted_at
+    }
+    class GroupBuyPackage {
+        +int id
+        +int merchant_id
+        +string name
+        +string description
+        +int original_price
+        +int group_price
+        +int stock
+        +int sold_count
+        +datetime valid_from
+        +datetime valid_to
+        +enum status
+        +string images_json
+        +datetime created_at
+        +datetime deleted_at
+    }
+    class PackageStore {
+        +int package_id
+        +int store_id
+    }
+    class Order {
+        +int id
+        +string order_no
+        +int consumer_id
+        +int merchant_id
+        +int store_id
+        +int package_id
+        +int quantity
+        +int unit_price
+        +int total_amount
+        +int commission_amount
+        +enum status
+        +enum fulfillment_type
+        +enum pickup_status
+        +enum source
+        +int channel_binding_id
+        +string prepay_id
+        +string transaction_id
+        +string idempotency_key
+        +datetime paid_at
+        +datetime expires_at
+        +datetime created_at
+        +datetime deleted_at
+    }
+    class OrderItem {
+        +int id
+        +int order_id
+        +int package_id
+        +int store_id
+        +int quantity
+        +int unit_price
+    }
+    class VerificationCode {
+        +int id
+        +string code
+        +int order_id
+        +int order_item_id
+        +int merchant_id
+        +int store_id
+        +enum status
+        +int verifier_id
+        +datetime verified_at
+        +datetime expires_at
+        +datetime created_at
+    }
+    class Refund {
+        +int id
+        +string refund_no
+        +int order_id
+        +int consumer_id
+        +int merchant_id
+        +int amount
+        +string reason
+        +enum status
+        +string channel_refund_id
+        +datetime created_at
+        +datetime updated_at
+    }
+    class Reservation {
+        +int id
+        +int merchant_id
+        +int store_id
+        +int consumer_id
+        +date reserve_date
+        +string time_slot
+        +int party_size
+        +string table_no
+        +string area
+        +enum status
+        +string remark
+        +datetime created_at
+        +datetime updated_at
+        +datetime deleted_at
+    }
+    class VideoChannelBinding {
+        +int id
+        +int merchant_id
+        +int store_id
+        +string video_account_id
+        +string poi_id
+        +string groupbuy_link
+        +enum status
+        +datetime created_at
+        +datetime deleted_at
+    }
+
+    PlatformOperator "1" --> "0..*" Merchant : 创建/治理
+    Merchant "1" --> "0..*" MerchantUser : 主账号
+    Merchant "1" --> "0..*" Store : 多门店
+    Merchant "1" --> "0..*" Staff : 员工
+    Store "1" --> "0..*" Staff : 门店员工
+    Merchant "1" --> "0..*" GroupBuyPackage : 发布套餐
+    GroupBuyPackage "0..*" --> "0..*" Store : 适用门店
+    PackageStore ..> GroupBuyPackage
+    PackageStore ..> Store
+    Consumer "1" --> "0..*" Order : 下单
+    Merchant "1" --> "0..*" Order
+    Store "1" --> "0..*" Order : 履约门店
+    Order "1" --> "1..*" OrderItem
+    GroupBuyPackage "1" --> "0..*" OrderItem
+    Order "1" --> "0..*" VerificationCode : 生成核销码
+    Order "1" --> "0..1" Refund : 退款
+    Staff "0..*" --> "0..*" VerificationCode : 核销人
+    Order "0..1" --> "0..1" Reservation : 预约履约(fulfillment_type=reservation)
+    Store "1" --> "0..*" Reservation : 门店时段占用
+    Store "1" --> "0..*" VideoChannelBinding : 视频号挂载
+    VideoChannelBinding "0..*" --> "0..*" Order : 内容引流归因(source=video_channel)

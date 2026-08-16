@@ -1,0 +1,152 @@
+%% 4.1 C 端：浏览 -> 下单 -> 微信支付(JSAPI Mock) -> 回调 -> 生成核销码
+sequenceDiagram
+    actor U as 消费者(小程序)
+    participant MP as 小程序
+    participant WX as wechat.js(Provider)
+    participant API as 后端API
+    participant SVC as order/verification服务
+    participant PAY as PaymentProvider
+    participant DB as 数据库
+
+    U->>MP: 浏览首页/套餐列表
+    MP->>API: GET /packages?store_id=
+    API->>DB: 查 published 套餐(按 tenant 过滤)
+    DB-->>API: 套餐列表
+    API-->>MP: {code:0,data:[...]}
+    U->>MP: 点「立即购买」-> 选门店/手机号
+    MP->>API: POST /orders  (JWT:consumer)
+    API->>DB: 校验套餐/库存/有效期
+    API->>DB: 建 Order(pending_payment) + 预占库存
+    API->>PAY: create_prepay(order) [Mock返回prepay_id]
+    PAY-->>API: prepay_id / pay_params
+    API-->>MP: {data:{order_no, pay_params}}
+    MP->>WX: wx.requestPayment(pay_params)
+    WX-->>MP: 支付成功(模拟)
+    MP->>API: POST /orders/{no}/pay-notify  (Mock回调)
+    API->>DB: 校验 idempotency_key 去重
+    API->>SVC: 状态机 pending->paid, 扣 sold_count
+    SVC->>DB: 生成 VerificationCode(unused, 唯一code)
+    API-->>MP: {code:0,data:{order, code}}
+    MP-->>U: 展示核销码 / 我的订单
+
+%% 4.2 门店扫码核销：扫描 -> 校验 -> 标记已核销（幂等防重）
+sequenceDiagram
+    actor V as 核销员(小程序)
+    participant MP as 小程序(scan-verify)
+    participant API as 后端API
+    participant SVC as verification服务
+    participant DB as 数据库
+
+    V->>MP: 扫用户核销码 / 手动输码
+    MP->>API: POST /verify  {code}  (JWT:staff, role=verifier)
+    API->>SVC: verify(code, staff_ctx)
+    SVC->>DB: 查 VerificationCode(UNIQUE code) + 订单
+    alt 码不存在/订单非本门店
+        SVC-->>API: 错误 4002/2002
+        API-->>MP: {code:4002,message:"无效核销码"}
+    else 已 used
+        SVC-->>API: 错误 4001(已核销)
+        API-->>MP: {code:4001,message:"该码已核销"}
+    else 有效未核销
+        SVC->>DB: 行级更新 status=used, verifier_id, verified_at (WHERE status=unused)
+        alt 并发重复(影响行数=0)
+            SVC-->>API: 4001 幂等返回已核销
+        else 成功(影响行数=1)
+            SVC->>DB: 若全部码 used -> Order->fulfilled
+            API-->>MP: {code:0,data:{verified:true}}
+            MP-->>V: 核销成功 + 今日明细
+        end
+    end
+
+%% 4.3 退款流程：申请 -> 校验 -> 调用支付退款(Mock) -> 更新状态
+sequenceDiagram
+    actor U as 消费者(小程序)
+    participant MP as 小程序
+    participant API as 后端API
+    participant SVC as refund服务
+    participant PAY as PaymentProvider
+    participant DB as 数据库
+
+    U->>MP: 我的订单->申请退款(全额)
+    MP->>API: POST /refunds {order_no, amount, reason}
+    API->>SVC: apply(order, amount)
+    SVC->>DB: 校验订单 status=paid/fulfilled 且未退
+    SVC->>DB: 建 Refund(pending, refund_no UNIQUE)
+    SVC->>PAY: refund(order, amount) [Mock自动成功]
+    PAY-->>SVC: channel_refund_id
+    SVC->>DB: Refund->succeeded; Order->refunded; 回滚 sold_count
+    API-->>MP: {code:0,data:{refund}}
+    MP-->>U: 退款成功提示
+
+%% 4.4 外卖自提履约：下单(自提) -> 备餐 -> 通知待取 -> 到店取
+sequenceDiagram
+    actor U as 消费者(小程序)
+    participant MP as 小程序
+    participant API as 后端API
+    participant SVC as order/fulfillment服务
+    participant NOTI as NotificationProvider
+    participant DB as 数据库
+    actor S as 门店员工(后台/小程序)
+
+    U->>MP: 选套餐->履约方式=自提->下单支付
+    MP->>API: POST /orders {fulfillment_type:self_pickup}
+    API->>DB: 建 Order(paid) + pickup_status=preparing
+    MP-->>U: 展示核销码(到店取餐出示)
+    S->>API: PATCH /orders/{no}/pickup {status:ready}  (商家备餐完成)
+    API->>NOTI: notify(ready)  [Mock返回成功]
+    NOTI-->>API: ok
+    API-->>MP: 推送「待取餐」(Mock)
+    MP-->>U: 到店出示核销码
+    U->>S: 出示核销码
+    S->>API: POST /verify {code}
+    API->>SVC: 核销->Order.pickup_status=picked_up
+    API-->>MP: {code:0,data:{picked_up:true}}
+
+%% 4.5 预约订座：选时段/人数 -> 占时段库存 -> 确认 -> 到店/取消/超时释放
+sequenceDiagram
+    actor U as 消费者(小程序)
+    participant MP as 小程序
+    participant API as 后端API
+    participant SVC as fulfillment服务
+    participant DB as 数据库
+
+    U->>MP: 选门店->预约(日期/时段/人数)
+    MP->>API: POST /reservations {store_id,reserve_date,time_slot,party_size}
+    API->>SVC: 校验时段库存(store_id+date+slot 占用<上限)
+    alt 时段已满
+        SVC-->>API: 错误 6001(时段已满)
+        API-->>MP: {code:6001,message:"该时段已约满"}
+    else 有库存
+        SVC->>DB: 占时段库存 + 建 Reservation(pending)
+        API-->>MP: {code:0,data:{reservation}}
+        U->>MP: 确认预约
+        MP->>API: PATCH /reservations/{id} {status:confirmed}
+        API->>DB: Reservation->confirmed
+        API-->>MP: {code:0,data:{confirmed:true}}
+        Note over SVC,DB: 超时未确认->released 回收时段库存(定时/查询时)
+        U->>MP: 到店/取消
+        MP->>API: PATCH /reservations/{id} {status:arrived|cancelled}
+        API->>DB: Reservation->arrived/cancelled; cancelled 回收库存
+    end
+
+%% 4.6 视频号挂载 + 内容引流订单归因
+sequenceDiagram
+    actor O as 门店店长(后台)
+    participant WA as Web后台
+    participant API as 后端API
+    participant MAP as MapProvider
+    participant DB as 数据库
+    actor U as 消费者(视频号)
+    participant VC as 视频号内容
+
+    O->>WA: 门店绑定视频号 + POI + 挂团购链接
+    WA->>API: POST /video-bindings {store_id,video_account_id,poi_id}
+    API->>MAP: 校验/解析 POI [Mock返回固定POI]
+    MAP-->>API: poi 信息
+    API->>DB: 建 VideoChannelBinding(groupbuy_link)
+    API-->>WA: {code:0,data:{binding}}
+    VC->>U: 视频号挂载 POI+团购入口
+    U->>API: 从视频号进入下单(携带 binding_id/source=video_channel)
+    API->>DB: 建 Order(source=video_channel, channel_binding_id)
+    API-->>U: 下单成功
+    Note over API,DB: 看板统计 source=video_channel 订单占比(内容引流归因)

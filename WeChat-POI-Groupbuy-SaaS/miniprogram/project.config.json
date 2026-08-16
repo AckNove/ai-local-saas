@@ -1,0 +1,16 @@
+{
+  "description": "微信视频号 POI 团购 SaaS - C 端小程序",
+  "packOptions": { "ignore": [], "include": [] },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.0.0",
+  "appid": "touristappid",
+  "projectname": "wechat-poi-groupbuy-miniprogram",
+  "condition": {}
+}
